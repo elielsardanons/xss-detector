@@ -3,7 +3,8 @@ from inject import inputReflected, injectQueryString, injectBodyParam, injectPay
 from urlrequest import URLRequest
 from termcolors import TermColors
 
-def searchForXSS(url, method, body=None):
+def search_for_xss(url, method="GET", body=None):
+	print(f"Serching for XSSs in {TermColors.GREEN}{url}{TermColors.ENDC}")
 	allReflectedBodyParams = []
 	allReflectedParams = []
 	detectedXSS = []
