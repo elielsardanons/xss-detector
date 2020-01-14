@@ -2,10 +2,10 @@ import requests
 import re    
 from urllib.parse import urlparse    
 
-class XSSCrawler(object):    
+class XSSCrawler(object):
 	def __init__(self, url):
-		self.url = url
-		self.domain = urlparse(url).netloc
+		self.original_url = url
+		self.parsed_original_url = urlparse(self.original_url)
 		self.visited = set()
 
 	def get_html(self, url):
@@ -17,17 +17,11 @@ class XSSCrawler(object):
 
 	def get_links(self, url):
 		html = self.get_html(url)
-		parsed = urlparse(url)
-		base = f"{parsed.scheme}://{parsed.netloc}"
+		base = f"{self.parsed_original_url.scheme}://{self.parsed_original_url.netloc}"
 		links = re.findall('''<a\s+(?:[^>]*?\s+)?href="([^"]*)"''', html)
 		for i, link in enumerate(links):
-			link_domain = urlparse(link).netloc
-			print(f"link_domain = {link_domain} [{link}]")
-			if not link_domain:
-				link_with_base = base + link
-				links[i] = link_with_base
-			elif link_domain != self.domain:
-				del links[i]
+			if not urlparse(link).netloc:
+				links[i] = base + link
 
 		return set(filter(lambda x: 'mailto' not in x, links))
 
@@ -35,13 +29,16 @@ class XSSCrawler(object):
 		for link in self.get_links(url):
 			if link in self.visited:
 				continue
-			print(link)
+			if urlparse(link).netloc != self.parsed_original_url.netloc:
+				# Only follow links with the same original link domain.
+				continue
+			print(f"Following new link {link}")
 			self.visited.add(link)
 			self.crawl(link)
 
 	def start(self):
-		self.crawl(self.url)
+		self.crawl(self.original_url)
 
 if __name__ == "__main__":                           
-	crawler = XSSCrawler("https://despegar.com")        
+	crawler = XSSCrawler("https://despegar.com")
 	crawler.start()
