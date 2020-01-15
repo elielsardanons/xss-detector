@@ -2,7 +2,7 @@ import requests
 import re
 from urllib.parse import urlparse
 
-class Crawler(object):
+class Crawler():
 	def __init__(self, url, method, body, func, func_thread_pool):
 		self.original_url = url
 		self.original_method = method
@@ -11,7 +11,8 @@ class Crawler(object):
 		self.visited = set(url)
 		self.func = func
 		self.func_thread_pool = func_thread_pool
-		self.futures = []
+		self.func_thread_pool_result = []
+		self.func_result = []
 
 	def get_html(self, url):
 		try:
@@ -44,11 +45,13 @@ class Crawler(object):
 					continue
 				self.visited.add(link)
 				# search for injectable params in the given URL.
-				self.futures.append(self.func_thread_pool.submit(self.func, link))
+				self.func_thread_pool_result.append(self.func_thread_pool.submit(self.func, link))
 				self.crawl(link)
 			except Exception:
 				print(f"We where unable to follow link: {link}")
 
 	def start(self):
 		self.crawl(self.original_url)
+		for r in self.func_thread_pool_result:
+			self.func_result.append(r.result())
 

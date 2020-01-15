@@ -3,6 +3,14 @@ from inject import inputReflected, injectQueryString, injectBodyParam, injectPay
 from urlrequest import URLRequest
 from termcolors import TermColors
 
+from db import DB
+
+def store_xss_result(detectedXSS, dbpath):
+	db = DB(dbpath)
+	for xss in detectedXSS:
+		db.store_xss(xss["url"], xss["param"])
+
+
 def search_for_xss(url, method="GET", body=None):
 	print(f"Serching for XSSs in {TermColors.GREEN}{url}{TermColors.ENDC}")
 	allReflectedBodyParams = []
@@ -30,12 +38,13 @@ def search_for_xss(url, method="GET", body=None):
 		found = injectPayloads(u, reflectedParam, injectQueryString)
 		if found:
 			print(f"{TermColors.GREEN}{u.original_url}{TermColors.ENDC} is vulnerable to XSS! query param {TermColors.BLUE}{reflectedParam}{TermColors.ENDC} is injectable")
-			detectedXSS.append(reflectedQueryParam)
+			detectedXSS.append({"url":url, "param":reflectedQueryParam})
+
 
 	for reflectedBodyParam in allReflectedBodyParams:
 		found = injectPayloads(u, reflectedParam, injectBodyParam) 
 		if found:
 			print(f"{TermColors.GREEN}{u.original_url}{TermColors.ENDC} is vulnerable to XSS! body param {TermColors.BLUE}{reflectedParam}{TermColors.ENDC} is injectable")
-			detectedXSS.append(reflectedQueryParam)
+			detectedXSS.append({"url":url, "param":reflectedBodyParam})
 
 	return detectedXSS
