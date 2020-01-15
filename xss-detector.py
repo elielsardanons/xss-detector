@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from multiprocessing import Pool
+from concurrent.futures import ThreadPoolExecutor
 
 from xsshelper import search_for_xss
 from crawler import Crawler
@@ -19,7 +19,15 @@ if __name__ == "__main__":
 	# Scan the first given URL
 	search_for_xss(args.url, args.method, args.body)
 
+	# Initialize thread pool
+	executor = ThreadPoolExecutor(max_workers=args.threads)
+
 	# Start crawling and scanning the other found URLs
-	crawler = Crawler(args.url, args.method, args.body, search_for_xss)
+	crawler = Crawler(args.url, args.method, args.body, search_for_xss, executor)
 	crawler.start()
+
+	# wait till every xss detection function is done.
+	for future in crawler.futures:
+		future.result()
+
 
