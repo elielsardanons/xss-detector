@@ -13,7 +13,7 @@ optional arguments:
   --body BODY        The application/x-www-form-urlencoded body content to
                      send ('param1=value1&param2=value2')
   --method METHOD    request method 'GET' or 'POST' (defaults to "GET")
-  --threads THREADS  Number of threads to use while crawling the site
+  --threads THREADS  Number of threads to use while searching for XSSs inside the crawler.
   --db DB            sqlite3 database name. (defaults to 'xss.db')
 ```
 
