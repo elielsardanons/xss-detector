@@ -28,5 +28,5 @@ docker build --tag xss-detector:0.1 .
 
 # Running xss-detector using docker
 
-docker run -it xss-detector:0.1 --url https://www.victim.com
+docker run --mount type=bind,source="$(pwd)"/xss.db,target=/xss.db -it xss-detector:0.1 --url https://www.victim.com
 
