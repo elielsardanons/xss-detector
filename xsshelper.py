@@ -1,29 +1,26 @@
-from utils import randomString
-from inject import inputReflected, injectQueryString, injectBodyParam, injectPayloads
+from db import DB
+from utils import random_string
+from inject import input_reflected, inject_query_string, inject_body_param, inject_payloads
 from urlrequest import URLRequest
 from termcolors import TermColors
-
-from db import DB
 
 def store_xss_result(detectedXSS, dbpath):
 	db = DB(dbpath)
 	for xss in detectedXSS:
-		db.store_xss(xss["url"], xss["param"])
+		db.store_xss(str(xss["url"]), xss["param"])
 
 
-def search_for_xss(url, method="GET", body=None):
-	print(f"Serching for XSSs in {TermColors.GREEN}{url}{TermColors.ENDC}")
+def search_for_xss(url):
+	print(f"Serching for XSSs in {TermColors.GREEN}{url.original_url}{TermColors.ENDC}")
 	allReflectedBodyParams = []
 	allReflectedParams = []
 	detectedXSS = []
 
-	u = URLRequest(url, body=body, method=method)
-
 	# Get all the query strings and body params that could be vulnerable.
-	allReflectedQueryParams = inputReflected(u, u.query_string.keys(), randomString(), injectQueryString)
+	allReflectedQueryParams = input_reflected(url, url.query_string.keys(), random_string(), inject_query_string)
 
-	if u.method == "POST":
-		allReflectedBodyParams = inputReflected(u, u.parsed_body.keys(), randomString(), injectBodyParam)
+	if url.method == "POST":
+		allReflectedBodyParams = input_reflected(url, url.parsed_body.keys(), random_string(), inject_body_param)
 
 	# Show the found params that could be vulnerable.
 	for reflectedParam in allReflectedQueryParams:
@@ -35,16 +32,16 @@ def search_for_xss(url, method="GET", body=None):
 
 	# start injecting different payloads in found injectable params.
 	for reflectedQueryParam in allReflectedQueryParams:
-		found = injectPayloads(u, reflectedParam, injectQueryString)
+		found = inject_payloads(url, reflectedParam, inject_query_string)
 		if found:
-			print(f"{TermColors.GREEN}{u.original_url}{TermColors.ENDC} is vulnerable to XSS! query param {TermColors.BLUE}{reflectedParam}{TermColors.ENDC} is injectable")
+			print(f"{TermColors.GREEN}{url.original_url}{TermColors.ENDC} is vulnerable to XSS! query param {TermColors.BLUE}{reflectedParam}{TermColors.ENDC} is injectable")
 			detectedXSS.append({"url":url, "param":reflectedQueryParam})
 
 
 	for reflectedBodyParam in allReflectedBodyParams:
-		found = injectPayloads(u, reflectedParam, injectBodyParam) 
+		found = inject_payloads(url, reflectedParam, inject_body_param) 
 		if found:
-			print(f"{TermColors.GREEN}{u.original_url}{TermColors.ENDC} is vulnerable to XSS! body param {TermColors.BLUE}{reflectedParam}{TermColors.ENDC} is injectable")
+			print(f"{TermColors.GREEN}{url.original_url}{TermColors.ENDC} is vulnerable to XSS! body param {TermColors.BLUE}{reflectedParam}{TermColors.ENDC} is injectable")
 			detectedXSS.append({"url":url, "param":reflectedBodyParam})
 
 	return detectedXSS

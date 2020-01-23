@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from xsshelper import search_for_xss, store_xss_result
 from crawler import Crawler
+from urlrequest import URLRequest
 
 if __name__ == "__main__":
 
@@ -17,14 +18,11 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 
-	# Scan the first given URL
-	store_xss_result(search_for_xss(args.url, args.method, args.body), args.db)
-
 	# Initialize thread pool
 	thread_pool = ThreadPoolExecutor(max_workers=int(args.threads))
 
 	# Start crawling and scanning the other found URLs
-	crawler = Crawler(args.url, args.method, args.body, search_for_xss, thread_pool)
+	crawler = Crawler(URLRequest(url = args.url, method = args.method, body = args.body), search_for_xss, thread_pool)
 	crawler.start()
 
 	for r in crawler.func_result:

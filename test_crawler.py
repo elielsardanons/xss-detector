@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from xsshelper import search_for_xss
 from crawler import Crawler
+from urlrequest import URLRequest
 
 class CrawlerTest(unittest.TestCase):
 	daemon = None
@@ -22,11 +23,11 @@ class CrawlerTest(unittest.TestCase):
 	
 	def test_crawler(self):
 		pool = ThreadPoolExecutor(5)
-		crawler = Crawler("http://localhost:8123/vuln-site/something.py", "GET", None, search_for_xss, pool)
+		crawler = Crawler(URLRequest("http://localhost:8123/vuln-site/something.py"), search_for_xss, pool)
 		crawler.start()
 
-		self.assertEqual(crawler.func_result[0][0]["url"], "http://localhost:8123/vuln-site/index.py?q=eliel")
-		self.assertEqual(crawler.func_result[0][0]["param"], "q")
+		self.assertEqual(crawler.func_result[1][0]["url"].original_url, "http://localhost:8123/vuln-site/index.py?q=eliel")
+		self.assertEqual(crawler.func_result[1][0]["param"], "q")
 
 	def teardown(self):
 		self.daemon.stop()

@@ -3,6 +3,7 @@ import threading
 from http.server import CGIHTTPRequestHandler, HTTPServer
 
 from xsshelper import search_for_xss
+from urlrequest import URLRequest
 
 class XSSHelperTest(unittest.TestCase):
 	daemon = None
@@ -19,8 +20,8 @@ class XSSHelperTest(unittest.TestCase):
 		server.serve_forever()
 	
 	def test_search_for_xss(self):
-		r = search_for_xss("http://localhost:8123/vuln-site/index.py?q=hola")
-		self.assertEqual(r[0]["url"], "http://localhost:8123/vuln-site/index.py?q=hola")
+		r = search_for_xss(URLRequest("http://localhost:8123/vuln-site/index.py?q=hola"))
+		self.assertEqual(r[0]["url"].original_url, "http://localhost:8123/vuln-site/index.py?q=hola")
 		self.assertEqual(r[0]["param"], "q")
 
 	def teardown(self):

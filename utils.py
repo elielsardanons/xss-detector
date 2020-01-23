@@ -1,11 +1,11 @@
 import random
 import string
 
-def randomString(length=12):
+def random_string(length=12):
 	chars = string.ascii_lowercase
 	return ''.join(random.choice(chars) for i in range(length))
 
-def joinQueryString(qs):
+def join_query_string(qs):
 	fullQueryString = []
 	for paramName in qs.keys():
 		for paramValue in qs[paramName]:
